@@ -5,7 +5,7 @@
         <div class="data-title">
           挣钱<span class="data-sub-title">MONEY</span>
         </div>
-        <div class="data-content">¥ 100.04</div>
+        <div class="data-content">{{ money.toFixed(2) }} 元</div>
         <img src="../../assets/money.svg" class="data-icon" />
       </div>
       <div class="data-block">
@@ -15,8 +15,8 @@
         <div class="data-content drink-content" @click="onDrinkInc">
           <div class="drink-count">{{ drinkCount }} / {{ maxDrinkCount }}</div>
 
-          <div :class="`drink-add-icon ${hasFinised && 'finished-icon'}`">
-            <img src="../../assets/ok-white.svg" v-if="hasFinised" />
+          <div :class="`drink-add-icon ${hasFinished && 'finished-icon'}`">
+            <img src="../../assets/ok-white.svg" v-if="hasFinished" />
             <img src="../../assets/add.svg" v-else />
           </div>
         </div>
@@ -26,13 +26,7 @@
 
     <div class="data-row shit-row">
       <div class="shit-count">
-        <div
-          class="shit-bar"
-          v-for="(v, i) in new Array(24)
-            .fill(0)
-            .map(() => 0.2 + 0.8 * Math.random())"
-          :key="i"
-        >
+        <div class="shit-bar" v-for="(v, i) in myDay" :key="i">
           <div class="the-bar">
             <div
               class="the-bar-content"
@@ -49,26 +43,61 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, ref } from "vue";
+import { computed, defineComponent, ref, onMounted } from "vue";
 
 const MAX_DRINK_COUNT = 8;
+const TOTAL_MONEY = 2000;
+const TOTAL_TIME = 3600 * 8 * 1000;
+const TODAY_DATE = new Date();
+const TODAY_START =
+  +new Date(
+    `${TODAY_DATE.getFullYear()}/${
+      TODAY_DATE.getMonth() + 1
+    }/${TODAY_DATE.getDate()}`
+  ) +
+  10 * 3600 * 1000;
+console.log(TODAY_START);
+const MY_DAY = new Array(24).fill(0).map(() => 0.2 + 0.8 * Math.random());
 
 export default defineComponent({
   name: "HelloWorld",
   setup() {
-    const drinkCount = ref(1);
-    const hasFinised = computed(() => drinkCount.value >= MAX_DRINK_COUNT);
+    const drinkCount = ref(6);
+    const hasFinished = computed(() => drinkCount.value >= MAX_DRINK_COUNT);
+    const money = ref(0);
 
     const onDrinkInc = () => {
-      if (drinkCount.value >= MAX_DRINK_COUNT) return;
+      if (hasFinished.value) return;
       drinkCount.value += 1;
+      if (hasFinished.value) {
+        new Notification("喝水小助手", { body: "恭喜宁喝完辣" }).onclick = () =>
+          console.log("Notification clicked");
+      }
     };
+
+    const updateMoney = () => {
+      setTimeout(() => {
+        const now = +new Date();
+        const ratio = Math.min(
+          1,
+          Math.max(0, (now - TODAY_START) / TOTAL_TIME)
+        );
+        money.value = ratio * TOTAL_MONEY;
+        updateMoney();
+      }, 500);
+    };
+
+    onMounted(() => {
+      updateMoney();
+    });
 
     return {
       drinkCount,
-      hasFinised,
+      hasFinished,
       maxDrinkCount: MAX_DRINK_COUNT,
+      myDay: MY_DAY,
       onDrinkInc,
+      money,
     };
   },
 });
