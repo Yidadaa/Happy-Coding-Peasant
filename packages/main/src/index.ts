@@ -1,4 +1,4 @@
-import { app, BrowserWindow } from "electron";
+import { app, BrowserWindow, powerMonitor } from "electron";
 import { join } from "path";
 import { URL } from "url";
 import { menubar, Menubar } from "menubar";
@@ -34,7 +34,9 @@ const createWindow = async () => {
     showDockIcon: true,
     browserWindow: {
       show: false, // Use 'ready-to-show' event to show window
-      height: 200,
+      height: 201,
+      vibrancy: "light",
+      transparent: true,
       webPreferences: {
         preload: join(__dirname, "../../preload/dist/index.cjs"),
         contextIsolation: import.meta.env.MODE !== "test", // Spectron tests can't work with contextIsolation: true
@@ -89,3 +91,11 @@ if (import.meta.env.PROD) {
     .then(({ autoUpdater }) => autoUpdater.checkForUpdatesAndNotify())
     .catch((e) => console.error("Failed check updates:", e));
 }
+
+powerMonitor.on("unlock-screen", () => {
+  console.log("unlock screen");
+});
+
+powerMonitor.on("lock-screen", () => {
+  console.log("lock screen");
+});
