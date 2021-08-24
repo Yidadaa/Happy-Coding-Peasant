@@ -5,6 +5,7 @@
         <div class="data-title">
           挣钱<span class="data-sub-title">MONEY</span>
         </div>
+        <div class="data-pre-content">今天宁已经挣了</div>
         <div class="data-content">{{ money.toFixed(2) }} 元</div>
         <img src="../../assets/money.svg" class="data-icon" />
       </div>
@@ -34,7 +35,7 @@
             ></div>
           </div>
           <div class="bar-title">
-            {{ i % 4 === 0 ? i.toString().padStart(2, "0") : "-" }}
+            {{ i % 3 === 0 || i === 24 ? i.toString().padStart(2, "0") : "-" }}
           </div>
         </div>
       </div>
@@ -46,7 +47,7 @@
 import { computed, defineComponent, ref, onMounted } from "vue";
 
 const MAX_DRINK_COUNT = 8;
-const TOTAL_MONEY = 2000;
+const TOTAL_MONEY = 1600;
 const TOTAL_TIME = 3600 * 8 * 1000;
 const TODAY_DATE = new Date();
 const TODAY_START =
@@ -56,13 +57,12 @@ const TODAY_START =
     }/${TODAY_DATE.getDate()}`
   ) +
   10 * 3600 * 1000;
-console.log(TODAY_START);
-const MY_DAY = new Array(24).fill(0).map(() => 0.2 + 0.8 * Math.random());
+const MY_DAY = new Array(25).fill(0).map(() => 0.2 + 0.8 * Math.random());
 
 export default defineComponent({
   name: "HelloWorld",
   setup() {
-    const drinkCount = ref(6);
+    const drinkCount = ref(0);
     const hasFinished = computed(() => drinkCount.value >= MAX_DRINK_COUNT);
     const money = ref(0);
 
@@ -148,9 +148,13 @@ export default defineComponent({
   font-size: 12px;
 
   .data-sub-title {
-    padding-left: 10px;
+    padding-left: 12px;
     font-weight: normal;
   }
+}
+
+.data-pre-content {
+  font-size: 12px;
 }
 
 .data-content {

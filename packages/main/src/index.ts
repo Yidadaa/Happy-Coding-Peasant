@@ -34,9 +34,10 @@ const createWindow = async () => {
     showDockIcon: true,
     browserWindow: {
       show: false, // Use 'ready-to-show' event to show window
-      height: 201,
-      vibrancy: "light",
+      height: 200,
+      vibrancy: "menu",
       transparent: true,
+      backgroundColor: "#0d000000",
       webPreferences: {
         preload: join(__dirname, "../../preload/dist/index.cjs"),
         contextIsolation: import.meta.env.MODE !== "test", // Spectron tests can't work with contextIsolation: true
