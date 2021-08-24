@@ -1,4 +1,4 @@
-import { app, BrowserWindow, powerMonitor } from "electron";
+import { app, BrowserWindow, ipcMain, powerMonitor } from "electron";
 import { join } from "path";
 import { URL } from "url";
 import { menubar, Menubar } from "menubar";
@@ -34,7 +34,7 @@ const createWindow = async () => {
     showDockIcon: true,
     browserWindow: {
       show: false, // Use 'ready-to-show' event to show window
-      height: 200,
+      height: 201,
       vibrancy: "menu",
       transparent: true,
       backgroundColor: "#0d000000",
@@ -42,6 +42,7 @@ const createWindow = async () => {
         preload: join(__dirname, "../../preload/dist/index.cjs"),
         contextIsolation: import.meta.env.MODE !== "test", // Spectron tests can't work with contextIsolation: true
         enableRemoteModule: import.meta.env.MODE === "test", // Spectron tests can't work with enableRemoteModule: false
+        nodeIntegration: true,
       },
     },
   });
@@ -62,6 +63,10 @@ const createWindow = async () => {
     if (import.meta.env.MODE === "development") {
       mb?.window?.webContents.openDevTools();
     }
+  });
+
+  mb.on("after-hide", () => {
+    mb?.window?.webContents.reload();
   });
 };
 

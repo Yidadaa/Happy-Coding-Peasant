@@ -14,7 +14,9 @@
           喝水<span class="data-sub-title">DRINK</span>
         </div>
         <div class="data-content drink-content" @click="onDrinkInc">
-          <div class="drink-count">{{ drinkCount }} / {{ maxDrinkCount }}</div>
+          <div class="drink-count">
+            {{ todayDrink.count }} / {{ todayDrink.max }}
+          </div>
 
           <div :class="`drink-add-icon ${hasFinished && 'finished-icon'}`">
             <img src="../../assets/ok-white.svg" v-if="hasFinished" />
@@ -45,10 +47,11 @@
 
 <script lang="ts">
 import { computed, defineComponent, ref, onMounted } from "vue";
+import { useElectron, useIpcRenderer } from "../use/electron";
+import { IDrink, useDB } from "../use/useDB";
 
-const MAX_DRINK_COUNT = 8;
-const TOTAL_MONEY = 1600;
-const TOTAL_TIME = 3600 * 8 * 1000;
+const TOTAL_MONEY = 1230;
+const TOTAL_TIME = 3600 * 9 * 1000;
 const TODAY_DATE = new Date();
 const TODAY_START =
   +new Date(
@@ -62,17 +65,37 @@ const MY_DAY = new Array(25).fill(0).map(() => 0.2 + 0.8 * Math.random());
 export default defineComponent({
   name: "HelloWorld",
   setup() {
-    const drinkCount = ref(0);
-    const hasFinished = computed(() => drinkCount.value >= MAX_DRINK_COUNT);
+    const db = useDB();
+    const ipcRenderer = useIpcRenderer();
+    const todayDrink = ref<IDrink>({
+      max: 8,
+      count: 0,
+      timestamp: +db.getToday(),
+    });
+    const hasFinished = computed(
+      () => todayDrink.value.count >= todayDrink.value.max
+    );
     const money = ref(0);
+
+    const loadDrink = () => {
+      db.getDrink().then((drink) => (todayDrink.value = drink));
+    };
 
     const onDrinkInc = () => {
       if (hasFinished.value) return;
-      drinkCount.value += 1;
-      if (hasFinished.value) {
-        new Notification("喝水小助手", { body: "恭喜宁喝完辣" }).onclick = () =>
-          console.log("Notification clicked");
-      }
+      todayDrink.value.count += 1;
+
+      db.updateDrink(todayDrink.value).then(() => {
+        loadDrink();
+        if (hasFinished.value) {
+          new Notification("喝水小助手", { body: "恭喜宁喝完辣" }).onclick =
+            () => console.log("Notification clicked");
+        }
+      });
+    };
+
+    const registerEvents = () => {
+      // ipcRenderer.on("reload", loadDrink);
     };
 
     const updateMoney = () => {
@@ -89,12 +112,13 @@ export default defineComponent({
 
     onMounted(() => {
       updateMoney();
+      loadDrink();
+      registerEvents();
     });
 
     return {
-      drinkCount,
+      todayDrink,
       hasFinished,
-      maxDrinkCount: MAX_DRINK_COUNT,
       myDay: MY_DAY,
       onDrinkInc,
       money,
