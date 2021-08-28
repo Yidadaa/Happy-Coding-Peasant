@@ -19,8 +19,8 @@
           </div>
 
           <div :class="`drink-add-icon ${hasFinished && 'finished-icon'}`">
-            <img src="../../assets/ok-white.svg" v-if="hasFinished" />
-            <img src="../../assets/add.svg" v-else />
+            <img v-if="hasFinished" src="../../assets/ok-white.svg" />
+            <img v-else src="../../assets/add.svg" />
           </div>
         </div>
         <img src="../../assets/drink.svg" class="data-icon" />
@@ -29,12 +29,12 @@
 
     <div class="data-row shit-row">
       <div class="shit-count">
-        <div class="shit-bar" v-for="(v, i) in myDay" :key="i">
+        <div v-for="(v, i) in myDay" :key="i" class="shit-bar">
           <div class="the-bar">
             <div
               class="the-bar-content"
               :style="`height: ${(v * 100).toFixed(2)}%`"
-            ></div>
+            />
           </div>
           <div class="bar-title">
             {{ i % 3 === 0 || i === 24 ? i.toString().padStart(2, "0") : "-" }}
@@ -47,8 +47,9 @@
 
 <script lang="ts">
 import { computed, defineComponent, ref, onMounted } from "vue";
-import { useElectron, useIpcRenderer } from "../use/electron";
-import { IDrink, useDB } from "../use/useDB";
+import { useIpcRenderer } from "../use/electron";
+import type { IDrink } from "../use/useDB";
+import { useDB } from "../use/useDB";
 
 const TOTAL_MONEY = 1230;
 const TOTAL_TIME = 3600 * 9 * 1000;
@@ -67,6 +68,7 @@ export default defineComponent({
   setup() {
     const db = useDB();
     const ipcRenderer = useIpcRenderer();
+
     const todayDrink = ref<IDrink>({
       max: 8,
       count: 0,
@@ -86,7 +88,6 @@ export default defineComponent({
       todayDrink.value.count += 1;
 
       db.updateDrink(todayDrink.value).then(() => {
-        loadDrink();
         if (hasFinished.value) {
           new Notification("喝水小助手", { body: "恭喜宁喝完辣" }).onclick =
             () => console.log("Notification clicked");
@@ -95,7 +96,7 @@ export default defineComponent({
     };
 
     const registerEvents = () => {
-      // ipcRenderer.on("reload", loadDrink);
+      ipcRenderer.receive("reload", loadDrink);
     };
 
     const updateMoney = () => {

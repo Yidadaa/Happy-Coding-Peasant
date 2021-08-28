@@ -6,7 +6,6 @@ const apiKey = "electron";
  */
 const api: ElectronApi = {
   versions: process.versions,
-  ipcRenderer: ipcRenderer,
 };
 
 /**
@@ -24,14 +23,27 @@ if (process.contextIsolated) {
    * @see https://www.electronjs.org/docs/api/context-bridge
    */
   contextBridge.exposeInMainWorld(apiKey, api);
+  // Expose protected methods that allow the renderer process to use
+  // the ipcRenderer without exposing the entire object
+  contextBridge.exposeInMainWorld("ipcRenderer", {
+    send: (channel: string, data: string) => {
+      ipcRenderer.send(channel, data);
+    },
+    receive: (channel: string, func: Function) => {
+      // Deliberately strip event as it includes `sender`
+      ipcRenderer.on(channel, (event, ...args) => {
+        func(...args);
+      });
+    },
+  });
 } else {
   /**
    * Recursively Object.freeze() on objects and functions
    * @see https://github.com/substack/deep-freeze
    * @param obj Object on which to lock the attributes
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const deepFreeze = (obj: any) => {
-    // eslint-disable-line @typescript-eslint/no-explicit-any
     if (typeof obj === "object" && obj !== null) {
       Object.keys(obj).forEach((prop) => {
         const val = obj[prop];

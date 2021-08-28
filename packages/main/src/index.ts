@@ -1,7 +1,8 @@
-import { app, BrowserWindow, ipcMain, powerMonitor } from "electron";
+import { app, powerMonitor } from "electron";
 import { join } from "path";
 import { URL } from "url";
-import { menubar, Menubar } from "menubar";
+import type { Menubar } from "menubar";
+import { menubar } from "menubar";
 
 const isSingleInstance = app.requestSingleInstanceLock();
 
@@ -65,8 +66,13 @@ const createWindow = async () => {
     }
   });
 
-  mb.on("after-hide", () => {
+  /* mb.on("after-hide", () => {
     mb?.window?.webContents.reload();
+  });
+  */
+
+  mb.on("show", () => {
+    mb?.window?.webContents.send("reload");
   });
 };
 

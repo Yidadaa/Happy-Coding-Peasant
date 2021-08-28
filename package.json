@@ -13,7 +13,7 @@
     "pretest": "cross-env MODE=test npm run build",
     "test": "node tests/app.spec.js",
     "watch": "node scripts/watch.js",
-    "lint": "eslint . --ext js,ts,vue",
+    "lint": "eslint . --ext js,ts,vue --fix",
     "typecheck-main": "tsc --noEmit -p packages/main/tsconfig.json",
     "typecheck-preload": "tsc --noEmit -p packages/preload/tsconfig.json",
     "typecheck-renderer": "vue-tsc --noEmit -p packages/renderer/tsconfig.json",
@@ -31,6 +31,7 @@
   },
   "devDependencies": {
     "@types/electron-devtools-installer": "^2.2.0",
+    "@types/node": "^16.7.4",
     "@typescript-eslint/eslint-plugin": "^4.29.2",
     "@vitejs/plugin-vue": "^1.4.0",
     "cross-env": "^7.0.3",
@@ -38,6 +39,8 @@
     "electron-builder": "^22.11.7",
     "electron-devtools-installer": "^3.2.0",
     "eslint": "^7.32.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-prettier": "^3.4.1",
     "eslint-plugin-vue": "^7.16.0",
     "less": "^4.1.1",
     "less-loader": "^10.0.1",
@@ -50,6 +53,7 @@
   },
   "dependencies": {
     "@types/lodash": "^4.14.172",
+    "@typescript-eslint/parser": "^4.29.3",
     "@vue/compiler-sfc": "^3.2.4",
     "dexie": "^3.0.3",
     "electron-updater": "^4.4.5",

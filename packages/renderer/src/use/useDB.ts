@@ -46,6 +46,10 @@ class PeasantDB extends Dexie {
     return new Date(new Date().toDateString());
   }
 
+  /**
+   * Get drink data.
+   * @returns today's drink data
+   */
   async getDrink() {
     const today = this.getToday();
     let todayDrink = await this.drinks.get({
@@ -65,7 +69,8 @@ class PeasantDB extends Dexie {
         // copy yesterday's data to today
         const yesterdayDrink = await this.drinks.toCollection().last();
         todayDrink = {
-          ..._.omit(yesterdayDrink, "id"),
+          ..._.omit(yesterdayDrink, ["id", "count"]),
+          count: 0,
           timestamp: +today,
         };
         todayDrink.id = await this.drinks.add(todayDrink);
@@ -83,6 +88,6 @@ class PeasantDB extends Dexie {
 
 const db = new PeasantDB();
 
-export function useDB() {
+export function useDB(): PeasantDB {
   return db;
 }
