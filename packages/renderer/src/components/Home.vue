@@ -77,6 +77,7 @@ export default defineComponent({
     const hasFinished = computed(
       () => todayDrink.value.count >= todayDrink.value.max
     );
+
     const money = ref(0);
 
     const loadDrink = () => {

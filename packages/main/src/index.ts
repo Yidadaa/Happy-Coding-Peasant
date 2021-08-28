@@ -27,7 +27,7 @@ const createWindow = async () => {
       ? import.meta.env.VITE_DEV_SERVER_URL
       : new URL(
           "../renderer/dist/index.html",
-          "file://" + __dirname
+          "file://" + __dirname,
         ).toString();
 
   mb = menubar({

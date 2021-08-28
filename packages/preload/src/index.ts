@@ -29,7 +29,7 @@ if (process.contextIsolated) {
     send: (channel: string, data: string) => {
       ipcRenderer.send(channel, data);
     },
-    receive: (channel: string, func: Function) => {
+    receive: (channel: string, func: CallableFunction) => {
       // Deliberately strip event as it includes `sender`
       ipcRenderer.on(channel, (event, ...args) => {
         func(...args);
